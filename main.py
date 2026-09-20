@@ -4,8 +4,15 @@ from gui import WeatherApp
 
 def main():
     log.info("Запуск приложения")
-    app = WeatherApp()
-    app.mainloop()
+
+    try:
+        app = WeatherApp()
+        app.mainloop()
+    except Exception:
+        log.exception("Критическая ошибка приложения")
+        raise
+    finally:
+        log.info("Приложение завершено")
 
 
 if __name__ == "__main__":
