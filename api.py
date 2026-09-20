@@ -4,41 +4,92 @@ from config import log, GEO_URL, FORECAST_URL
 
 
 def geocode(city):
-    log.info("Запрос координат для города '%s'", city)
-    resp = requests.get(GEO_URL, params={
+    log.info("Поиск координат города: %s", city)
+
+    params = {
         "name": city,
         "count": 1,
         "language": "ru",
         "format": "json",
-    }, timeout=10)
-    resp.raise_for_status()
+    }
 
-    results = resp.json().get("results")
+    try:
+        response = requests.get(
+            GEO_URL,
+            params=params,
+            timeout=10
+        )
+        response.raise_for_status()
+    except requests.RequestException:
+        log.exception("Ошибка при поиске координат города")
+        raise
+
+    results = response.json().get("results")
+
     if not results:
+        log.warning("Город не найден: %s", city)
         raise ValueError(f"Город '{city}' не найден")
 
-    r = results[0]
-    return {
-        "name": r["name"],
-        "country": r.get("country", ""),
-        "lat": r["latitude"],
-        "lon": r["longitude"],
+    result = results[0]
+
+    geo = {
+        "name": result["name"],
+        "country": result.get("country", ""),
+        "lat": result["latitude"],
+        "lon": result["longitude"],
     }
+
+    log.info(
+        "Координаты получены: %s, %s",
+        geo["name"],
+        geo["country"]
+    )
+
+    return geo
 
 
 def forecast(lat, lon):
-    log.info("Запрос прогноза для координат %.2f, %.2f", lat, lon)
+    log.info(
+        "Запрос прогноза для координат %.4f, %.4f",
+        lat,
+        lon
+    )
 
-    current = "temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weather_code"
-    daily = "temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code"
+    current = (
+        "temperature_2m,"
+        "apparent_temperature,"
+        "relative_humidity_2m,"
+        "wind_speed_10m,"
+        "precipitation,"
+        "weather_code"
+    )
 
-    resp = requests.get(FORECAST_URL, params={
+    daily = (
+        "temperature_2m_max,"
+        "temperature_2m_min,"
+        "precipitation_probability_max,"
+        "weather_code"
+    )
+
+    params = {
         "latitude": lat,
         "longitude": lon,
         "current": current,
         "daily": daily,
         "timezone": "auto",
         "forecast_days": 3,
-    }, timeout=10)
-    resp.raise_for_status()
-    return resp.json()
+    }
+
+    try:
+        response = requests.get(
+            FORECAST_URL,
+            params=params,
+            timeout=10
+        )
+        response.raise_for_status()
+    except requests.RequestException:
+        log.exception("Ошибка при получении прогноза")
+        raise
+
+    log.info("Прогноз успешно получен")
+    return response.json()

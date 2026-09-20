@@ -1,5 +1,6 @@
 import logging
 
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -8,6 +9,7 @@ logging.basicConfig(
         logging.StreamHandler(),
     ],
 )
+
 log = logging.getLogger("weather")
 
 GEO_URL = "https://geocoding-api.open-meteo.com/v1/search"
