@@ -1,3 +1,6 @@
+from config import log
+
+
 CODES = {
     0: "Ясно",
     1: "Малооблачно",
@@ -27,22 +30,74 @@ def describe_code(code):
     return CODES.get(code, "Нет данных")
 
 
+def calculate_risk(current, daily):
+    log.info("Расчёт индекса риска")
+
+    score = 0
+    reasons = []
+
+    temperature = current.get("temperature_2m", 0)
+    humidity = current.get("relative_humidity_2m", 0)
+    wind = current.get("wind_speed_10m", 0)
+    precipitation = current.get("precipitation", 0) or 0
+
+    rain_probability = daily.get(
+        "precipitation_probability_max",
+        [0]
+    )[0] or 0
+
+    if temperature <= -15 or temperature >= 30:
+        score += 3
+        reasons.append("экстремальная температура")
+    elif temperature <= -5 or temperature >= 25:
+        score += 2
+        reasons.append("неблагоприятная температура")
+
+    if humidity >= 85:
+        score += 1
+        reasons.append("высокая влажность")
+
+    if wind > 30:
+        score += 2
+        reasons.append("сильный ветер")
+
+    if precipitation > 0 or rain_probability >= 60:
+        score += 1
+        reasons.append("осадки")
+
+    if score <= 2:
+        level = "Низкий"
+    elif score <= 5:
+        level = "Средний"
+    else:
+        level = "Высокий"
+
+    log.info(
+        "Индекс риска: %s, %d баллов",
+        level,
+        score
+    )
+
+    return score, level, reasons
+
+
 def make_recommendation(current, daily):
     tips = []
 
-    temp = current["temperature_2m"]
+    temperature = current["temperature_2m"]
     wind = current["wind_speed_10m"]
-    rain = daily["precipitation_probability_max"][0]
+    rain_probability = daily["precipitation_probability_max"][0]
+    precipitation = current["precipitation"]
 
-    if rain >= 60 or current["precipitation"] > 0:
-        tips.append("Высокая вероятность осадков. Рекомендуется взять зонт.")
+    if rain_probability >= 60 or precipitation > 0:
+        tips.append("Высокая вероятность осадков. Возьмите зонт.")
 
-    if temp <= 0:
-        tips.append("Отрицательная температура. Рекомендуется тёплая одежда.")
-    elif temp < 10:
+    if temperature <= 0:
+        tips.append("Отрицательная температура. Наденьте тёплую одежду.")
+    elif temperature < 10:
         tips.append("Прохладно. Рекомендуется куртка.")
-    elif temp > 27:
-        tips.append("Высокая температура. Рекомендуется головной убор и питьевая вода.")
+    elif temperature > 27:
+        tips.append("Жарко. Возьмите воду и головной убор.")
 
     if wind > 30:
         tips.append("Сильный ветер. Соблюдайте осторожность.")
