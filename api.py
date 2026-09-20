@@ -93,3 +93,4 @@ def forecast(lat, lon):
 
     log.info("Прогноз успешно получен")
     return response.json()
+

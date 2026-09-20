@@ -17,3 +17,4 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 
 CACHE_TTL = 30 * 60
 DB_NAME = "weather_cache.db"
+
