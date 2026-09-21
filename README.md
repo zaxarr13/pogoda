@@ -97,7 +97,6 @@ python main.py
 
 ## Структура проекта
 
-```
 pogoda/
 ├── main.py            # точка входа в приложение
 ├── config.py          # настройки и логирование
@@ -106,8 +105,9 @@ pogoda/
 ├── logic.py           # обработка данных и формирование рекомендаций
 ├── gui.py             # графический интерфейс на Tkinter
 ├── requirements.txt   # зависимости проекта
+├── analiz.md          # анализ аналогов
+├── user-story.md      # User Story и Use Cases
 └── README.md          # документация
-```
 
 ---
 
