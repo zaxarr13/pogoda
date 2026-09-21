@@ -97,6 +97,7 @@ python main.py
 
 ## Структура проекта
 
+```
 pogoda/
 ├── main.py            # точка входа в приложение
 ├── config.py          # настройки и логирование
@@ -108,6 +109,7 @@ pogoda/
 ├── analiz.md          # анализ аналогов
 ├── user-story.md      # User Story и Use Cases
 └── README.md          # документация
+```
 
 ---
 
