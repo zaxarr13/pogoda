@@ -1,11 +1,11 @@
 import requests
 
-from config import log, GEO_URL, FORECAST_URL
+from config import GEO_URL, FORECAST_URL, log
 
 
 def geocode(city):
     log.info("Запрос координат для города '%s'", city)
-    resp = requests.get(
+    response = requests.get(
         GEO_URL,
         params={
             "name": city,
@@ -15,19 +15,19 @@ def geocode(city):
         },
         timeout=10,
     )
-    resp.raise_for_status()
+    response.raise_for_status()
 
-    results = resp.json().get("results")
+    results = response.json().get("results")
     if not results:
         raise ValueError(f"Город '{city}' не найден")
 
-    r = results[0]
+    result = results[0]
     return {
-        "name": r["name"],
-        "country": r.get("country", ""),
-        "region": r.get("admin1", ""),
-        "lat": r["latitude"],
-        "lon": r["longitude"],
+        "name": result["name"],
+        "country": result.get("country", ""),
+        "region": result.get("admin1", ""),
+        "lat": result["latitude"],
+        "lon": result["longitude"],
     }
 
 
@@ -43,7 +43,7 @@ def forecast(lat, lon):
         "precipitation_probability_max,weather_code"
     )
 
-    resp = requests.get(
+    response = requests.get(
         FORECAST_URL,
         params={
             "latitude": lat,
@@ -55,5 +55,5 @@ def forecast(lat, lon):
         },
         timeout=10,
     )
-    resp.raise_for_status()
-    return resp.json()
+    response.raise_for_status()
+    return response.json()
